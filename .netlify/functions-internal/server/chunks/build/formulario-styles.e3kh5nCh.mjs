@@ -1,0 +1,8 @@
+const formulario_vue_vue_type_style_index_0_scoped_21ccb70e_lang = ".page[data-v-21ccb70e]{align-items:center;background:linear-gradient(135deg,#0f172a,#1e3a8a);display:flex;font-family:Segoe UI,system-ui,sans-serif;justify-content:center;min-height:100vh}.card[data-v-21ccb70e]{background:#fff;border-radius:14px;box-shadow:0 20px 40px #00000040;padding:35px 30px;text-align:center;width:600px}.title[data-v-21ccb70e]{color:#1e3a8a;font-size:26px;font-weight:600}.subtitle[data-v-21ccb70e]{color:#475569;font-size:14px;margin-bottom:20px}input[data-v-21ccb70e]{border:1px solid #cbd5e1;border-radius:8px;margin-bottom:10px}.guardar[data-v-21ccb70e],input[data-v-21ccb70e]{padding:12px;width:100%}.guardar[data-v-21ccb70e]{background-color:#1e3a8a;border:none;border-radius:8px;color:#fff;margin-bottom:20px}.error[data-v-21ccb70e]{color:#dc2626;display:block;font-size:13px;margin-bottom:10px}.tabla[data-v-21ccb70e]{border-collapse:collapse;width:100%}.tabla td[data-v-21ccb70e],.tabla th[data-v-21ccb70e]{border:1px solid #cbd5e1;padding:8px}.tabla th[data-v-21ccb70e]{background-color:#1e3a8a;color:#fff}.editar[data-v-21ccb70e]{background:#facc15;margin-right:5px}.editar[data-v-21ccb70e],.eliminar[data-v-21ccb70e]{border:none;border-radius:6px;padding:6px 10px}.eliminar[data-v-21ccb70e]{background:#dc2626;color:#fff}.regresar[data-v-21ccb70e]{color:#1e3a8a;display:inline-block;margin-top:15px;text-decoration:none}";
+
+const formularioStyles_e3kh5nCh = [
+  formulario_vue_vue_type_style_index_0_scoped_21ccb70e_lang
+];
+
+export { formularioStyles_e3kh5nCh as default };
+//# sourceMappingURL=formulario-styles.e3kh5nCh.mjs.map
