@@ -32,7 +32,7 @@ function validarCaptcha() {
       <!-- ✅ reCAPTCHA OFICIAL -->
       <div
         class="g-recaptcha"
-        data-sitekey="6Ldn_0ksAAAAAItUy3Kgj1r__sJ8hxv5q91l-riD"
+        data-sitekey="6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ"
         data-callback="onCaptchaSuccess"
       ></div>
 
