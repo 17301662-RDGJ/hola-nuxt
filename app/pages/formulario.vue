@@ -148,21 +148,64 @@ const limpiar = () => {
 onMounted(cargarRegistros);
 </script>
 <template>
-  <button class="guardar" @click="guardarUsuario">
-    {{ editando ? "Actualizar" : "Agregar" }}
-  </button>
+  <div class="page">
+    <div class="card">
+      <h1 class="title">Formulario</h1>
+      <p class="subtitle">Registro de usuarios</p>
 
-  <tr v-for="r in registros" :key="r.id">
-    <td>{{ r.nombre }}</td>
-    <td>{{ r.email }}</td>
-    <td>{{ r.fecha_nacimiento }}</td>
-    <td>{{ r.telefono }}</td>
-    <td>{{ r.mensaje }}</td>
-    <td>
-      <button @click="editar(r)">Editar</button>
-      <button @click="eliminar(r.id)">Eliminar</button>
-    </td>
-  </tr>
+      <!-- FORMULARIO -->
+      <input
+        v-model="nombre"
+        placeholder="Nombre completo"
+        @input="soloLetras"
+      />
+
+      <input v-model="email" placeholder="Correo electrónico" />
+
+      <input type="date" v-model="fechaNacimiento" />
+
+      <input v-model="telefono" placeholder="Teléfono" @input="soloNumeros" />
+
+      <textarea
+        v-model="mensaje"
+        placeholder="Mensaje"
+        @input="limpiarMensaje"
+      ></textarea>
+
+      <span v-if="error" class="error">{{ error }}</span>
+
+      <button class="guardar" @click="guardarUsuario">
+        {{ editando ? "Actualizar" : "Agregar" }}
+      </button>
+
+      <!-- TABLA -->
+      <table v-if="registros.length" class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Fecha Nac.</th>
+            <th>Teléfono</th>
+            <th>Mensaje</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in registros" :key="r.id">
+            <td>{{ r.nombre }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.fecha_nacimiento }}</td>
+            <td>{{ r.telefono }}</td>
+            <td>{{ r.mensaje }}</td>
+            <td>
+              <button class="editar" @click="editar(r)">Editar</button>
+              <button class="eliminar" @click="eliminar(r.id)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
 <style scoped>
