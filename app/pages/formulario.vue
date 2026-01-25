@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { supabase } from "~/utils/supabase";
+import { useSupabase } from "~/utils/supabase";
+const supabase = useSupabase();
 
 // 🔹 Campos
 const nombre = ref("");

@@ -5,6 +5,14 @@ export default defineNuxtConfig({
   nitro: {
     preset: "netlify",
   },
+
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+    },
+  },
+
   app: {
     head: {
       script: [
