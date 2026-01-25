@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
-import Carrusel from "~/components/Carrusel.vue";
+import Carrusel from "~/components/carrusel.vue";
+
 const texto = ref("");
 
 const guardar = async () => {
