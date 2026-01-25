@@ -1,143 +1,168 @@
 <script setup>
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { ref, watch, onMounted } from "vue";
+import { supabase } from "@/utils/supabase";
 
-const router = useRouter();
-
+// 🔹 Campos
 const nombre = ref("");
 const email = ref("");
-const edad = ref("");
+const fechaNacimiento = ref("");
+const telefono = ref("");
+const mensaje = ref("");
+const edad = ref(null);
 
 const registros = ref([]);
 const error = ref("");
 const editando = ref(false);
-const indiceEditar = ref(null);
+const idEditar = ref(null);
 
-// 🔎 Expresiones regulares
-const nombreRegex = /^[a-zA-Z\s]{3,}$/;
+// 🔎 Regex
+const nombreRegex = /^[a-zA-Z\s]{3,60}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const edadRegex = /^[0-9]{1,3}$/;
+const sqlRegex = /(select|insert|delete|drop|update|--|;|'|")/i;
 
-// ✅ Validación en tiempo real
-watch([nombre, email, edad], () => {
+// ✋ Validaciones
+const soloLetras = () => {
+  nombre.value = nombre.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 60);
+};
+
+const soloNumeros = () => {
+  telefono.value = telefono.value.replace(/[^0-9]/g, "").slice(0, 10);
+};
+
+const limpiarMensaje = () => {
+  mensaje.value = mensaje.value.replace(sqlRegex, "");
+};
+
+// 🎂 Edad
+const calcularEdad = () => {
+  if (!fechaNacimiento.value) return (edad.value = null);
+
+  const hoy = new Date();
+  const nacimiento = new Date(fechaNacimiento.value);
+  let e = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) e--;
+  edad.value = e;
+};
+
+// 🔎 Watch validaciones
+watch([nombre, email, fechaNacimiento, telefono, mensaje], () => {
   error.value = "";
 
-  if (nombre.value && !nombreRegex.test(nombre.value)) {
-    error.value = "Nombre inválido";
-  } else if (email.value && !emailRegex.test(email.value)) {
-    error.value = "Email inválido";
-  } else if (edad.value && !edadRegex.test(edad.value)) {
-    error.value = "Edad inválida";
+  if (
+    !nombre.value ||
+    !email.value ||
+    !fechaNacimiento.value ||
+    !telefono.value ||
+    !mensaje.value
+  ) {
+    error.value = "Todos los campos son obligatorios";
+    return;
   }
+
+  if (!nombreRegex.test(nombre.value)) error.value = "Nombre inválido";
+  if (!emailRegex.test(email.value)) error.value = "Email inválido";
+  if (telefono.value.length < 7 || telefono.value.length > 10)
+    error.value = "Teléfono inválido";
+  if (sqlRegex.test(mensaje.value)) error.value = "Mensaje no permitido";
+
+  calcularEdad();
 });
 
-// ➕ Agregar / Editar
-const agregar = () => {
-  if (!nombre.value || !email.value || !edad.value) {
-    router.push("/error");
-    return;
-  }
+// 📥 CARGAR REGISTROS
+const cargarRegistros = async () => {
+  const { data, error: err } = await supabase
+    .from("usuarios")
+    .select("*")
+    .order("id", { ascending: false });
 
-  if (
-    !nombreRegex.test(nombre.value) ||
-    !emailRegex.test(email.value) ||
-    !edadRegex.test(edad.value)
-  ) {
-    router.push("/error");
-    return;
-  }
+  if (!err) registros.value = data;
+};
+
+// 💾 GUARDAR / ACTUALIZAR
+const guardarUsuario = async () => {
+  if (error.value) return;
+
+  const datos = {
+    nombre: nombre.value,
+    email: email.value,
+    fecha_nacimiento: fechaNacimiento.value,
+    edad: edad.value,
+    telefono: telefono.value,
+    mensaje: mensaje.value,
+  };
+
+  let response;
 
   if (editando.value) {
-    registros.value[indiceEditar.value] = {
-      nombre: nombre.value,
-      email: email.value,
-      edad: edad.value,
-    };
-    editando.value = false;
-    indiceEditar.value = null;
+    response = await supabase
+      .from("usuarios")
+      .update(datos)
+      .eq("id", idEditar.value);
   } else {
-    registros.value.push({
-      nombre: nombre.value,
-      email: email.value,
-      edad: edad.value,
-    });
+    response = await supabase.from("usuarios").insert([datos]);
   }
 
-  limpiar();
+  if (response.error) {
+    alert("❌ Error al guardar");
+    console.error(response.error);
+  } else {
+    limpiar();
+    cargarRegistros();
+    editando.value = false;
+  }
 };
 
-// ✏️ Editar fila
-const editar = (index) => {
-  const r = registros.value[index];
-  nombre.value = r.nombre;
-  email.value = r.email;
-  edad.value = r.edad;
+// ✏️ EDITAR
+const editar = (registro) => {
+  nombre.value = registro.nombre;
+  email.value = registro.email;
+  fechaNacimiento.value = registro.fecha_nacimiento;
+  telefono.value = registro.telefono;
+  mensaje.value = registro.mensaje;
+  edad.value = registro.edad;
 
+  idEditar.value = registro.id;
   editando.value = true;
-  indiceEditar.value = index;
 };
 
-// 🗑️ Eliminar fila
-const eliminar = (index) => {
-  registros.value.splice(index, 1);
+// 🗑️ ELIMINAR
+const eliminar = async (id) => {
+  await supabase.from("usuarios").delete().eq("id", id);
+  cargarRegistros();
 };
 
-// 🧹 Limpiar formulario
+// 🧹 LIMPIAR
 const limpiar = () => {
   nombre.value = "";
   email.value = "";
-  edad.value = "";
+  fechaNacimiento.value = "";
+  telefono.value = "";
+  mensaje.value = "";
+  edad.value = null;
+  editando.value = false;
 };
+
+onMounted(cargarRegistros);
 </script>
+<template>
+  <button class="guardar" @click="guardarUsuario">
+    {{ editando ? "Actualizar" : "Agregar" }}
+  </button>
 
- <template>
-  <div class="page">
-    <div class="card">
-
-      <!-- Breadcrumbs -->
-      <Breadcrumbs />
-
-      <h1 class="title">Formulario</h1>
-      <p class="subtitle">Validación de Datos (sin BD)</p>
-
-      <input v-model="nombre" placeholder="Nombre completo" />
-      <input v-model="email" placeholder="Correo electrónico" />
-      <input v-model="edad" placeholder="Edad" />
-
-      <span v-if="error" class="error">{{ error }}</span>
-
-      <button class="guardar" @click="agregar">
-        {{ editando ? "Actualizar" : "Agregar" }}
-      </button>
-
-      <!-- Tabla -->
-      <table v-if="registros.length" class="tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Edad</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(r, index) in registros" :key="index">
-            <td>{{ r.nombre }}</td>
-            <td>{{ r.email }}</td>
-            <td>{{ r.edad }}</td>
-            <td>
-              <button class="editar" @click="editar(index)">Editar</button>
-              <button class="eliminar" @click="eliminar(index)">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <NuxtLink to="/" class="regresar">Volver a inicio</NuxtLink>
-    </div>
-  </div>
+  <tr v-for="r in registros" :key="r.id">
+    <td>{{ r.nombre }}</td>
+    <td>{{ r.email }}</td>
+    <td>{{ r.fecha_nacimiento }}</td>
+    <td>{{ r.telefono }}</td>
+    <td>{{ r.mensaje }}</td>
+    <td>
+      <button @click="editar(r)">Editar</button>
+      <button @click="eliminar(r.id)">Eliminar</button>
+    </td>
+  </tr>
 </template>
-
 
 <style scoped>
 .page {
@@ -151,7 +176,7 @@ const limpiar = () => {
 
 .card {
   background: white;
-  width: 600px;
+  width: 800px;
   padding: 35px 30px;
   border-radius: 14px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);

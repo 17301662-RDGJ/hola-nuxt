@@ -8,6 +8,15 @@ const num1 = ref("");
 const num2 = ref("");
 const resultado = ref(null);
 
+const filtrarNumeros = (campo) => {
+  if (campo === "num1") {
+    num1.value = num1.value.replace(/[^0-9.,]/g, "");
+  }
+  if (campo === "num2") {
+    num2.value = num2.value.replace(/[^0-9.,]/g, "");
+  }
+};
+
 const calcular = (operacion) => {
   try {
     resultado.value = null;
@@ -16,11 +25,11 @@ const calcular = (operacion) => {
       throw new Error("Campos obligatorios");
     }
 
-    const a = Number(num1.value);
-    const b = Number(num2.value);
+    const a = Number(num1.value.replace(",", "."));
+    const b = Number(num2.value.replace(",", "."));
 
     if (isNaN(a) || isNaN(b)) {
-      throw new Error("Solo números");
+      throw new Error("Solo números,puntos o comas");
     }
 
     if (operacion === "suma") {
@@ -46,8 +55,19 @@ const calcular = (operacion) => {
       <h1 class="title">Operaciones Matemáticas</h1>
       <p class="subtitle">Suma y División con Excepciones</p>
 
-      <input v-model="num1" type="number" placeholder="Número 1" />
-      <input v-model="num2" type="number" placeholder="Número 2" />
+      <input
+        v-model="num1"
+        type="text"
+        placeholder="Número 1"
+        @input="filtrarNumeros('num1')"
+      />
+
+      <input
+        v-model="num2"
+        type="text"
+        placeholder="Número 2"
+        @input="filtrarNumeros('num2')"
+      />
 
       <div class="buttons">
         <button class="guardar" @click="calcular('suma')">Sumar</button>
@@ -57,7 +77,7 @@ const calcular = (operacion) => {
       <p v-if="resultado !== null">
         Resultado: <strong>{{ resultado }}</strong>
       </p>
-       <NuxtLink to="/" class="regresar">Volver a inicio</NuxtLink>
+      <NuxtLink to="/" class="regresar">Volver a inicio</NuxtLink>
     </div>
   </div>
 </template>

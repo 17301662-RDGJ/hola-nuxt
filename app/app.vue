@@ -2,12 +2,13 @@
   <div>
     <!-- Barra de menú -->
     <nav class="navbar">
-      <h1 class="logo">Mi Proyecto</h1>
+      <h1 class="logo">Mi Proyecto Nuxt.Js</h1>
 
       <ul class="menu">
         <li><NuxtLink to="/">Inicio</NuxtLink></li>
         <li><NuxtLink to="/operaciones">Operaciones</NuxtLink></li>
         <li><NuxtLink to="/formulario">Formulario</NuxtLink></li>
+        <li><NuxtLink to="/error">Pagina de Error</NuxtLink></li>
       </ul>
     </nav>
 
@@ -47,4 +48,3 @@
   text-decoration: underline;
 }
 </style>
-
