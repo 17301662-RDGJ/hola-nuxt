@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-
+import Carrusel from "~/components/Carrusel.vue";
 const texto = ref("");
 
 const guardar = async () => {
@@ -31,6 +31,8 @@ const guardar = async () => {
       </div>
     </div>
   </div>
+  <h1>Carrusel de Fotos 📸</h1>
+  <Carrusel />
 </template>
 
 <style scoped>

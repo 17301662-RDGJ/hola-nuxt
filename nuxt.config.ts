@@ -8,9 +8,15 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+      supabaseUrl: "https://ghehmklxrcanlxsqilpf.supabase.co",
+      supabaseAnonKey: "sb_publishable_Nmk-_w6ALvBw54tEJ7yyzQ_x47I5qAa",
+
+      // 👇 CLAVE PÚBLICA reCAPTCHA
+      recaptchaSiteKey: "T6LdHPlYsAAAAALdtalwZ00NBtvSbfqYXWx14ZQ6-",
     },
+
+    // 👇 CLAVE PRIVADA reCAPTCHA (NO va en public)
+    recaptchaSecretKey: "6LdHPlYsAAAAAIcB4mFc80wIb9dnp6QxWqJVw11m",
   },
 
   app: {
