@@ -12,11 +12,11 @@ export default defineNuxtConfig({
       supabaseAnonKey: "sb_publishable_Nmk-_w6ALvBw54tEJ7yyzQ_x47I5qAa",
 
       // 👇 CLAVE PÚBLICA reCAPTCHA
-      recaptchaSiteKey: "T6LdHPlYsAAAAALdtalwZ00NBtvSbfqYXWx14ZQ6-",
+      recaptchaSiteKey: "6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ",
     },
 
     // 👇 CLAVE PRIVADA reCAPTCHA (NO va en public)
-    recaptchaSecretKey: "6LdHPlYsAAAAAIcB4mFc80wIb9dnp6QxWqJVw11m",
+    recaptchaSecretKey: "6LcHBE8sAAAAADnSWiOZV0X2afRBQ4mX6QpfBNB3",
   },
 
   app: {
