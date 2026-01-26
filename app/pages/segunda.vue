@@ -1,6 +1,6 @@
 <script setup>
+//import Carrusel from "~/components/carrusel.vue";
 import { ref } from "vue";
-import Carrusel from "~/components/carrusel.vue";
 
 const texto = ref("");
 
