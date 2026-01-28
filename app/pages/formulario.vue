@@ -1,7 +1,9 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useSupabase } from "~/utils/supabase";
-const supabase = useSupabase();
+//import { useSupabase } from "~/plugins/supabase";
+const { $supabase } = useNuxtApp();
+const supabase = $supabase;
+//const supabase = useSupabase();
 
 // 🔹 Campos
 const nombre = ref("");
@@ -9,7 +11,7 @@ const email = ref("");
 const fechaNacimiento = ref("");
 const telefono = ref("");
 const mensaje = ref("");
-const edad = ref(null);
+//const edad = ref(null);
 
 const registros = ref([]);
 const error = ref("");
@@ -35,17 +37,20 @@ const limpiarMensaje = () => {
 };
 
 // 🎂 Edad
-const calcularEdad = () => {
-  if (!fechaNacimiento.value) return (edad.value = null);
+//const calcularEdad = () => {
+// if (!fechaNacimiento.value) {
+//  edad.value = null;
+// return;
+// }
 
-  const hoy = new Date();
-  const nacimiento = new Date(fechaNacimiento.value);
-  let e = hoy.getFullYear() - nacimiento.getFullYear();
-  const m = hoy.getMonth() - nacimiento.getMonth();
+// const hoy = new Date();
+//const nacimiento = new Date(fechaNacimiento.value);
+//let e = hoy.getFullYear() - nacimiento.getFullYear();
+//const m = hoy.getMonth() - nacimiento.getMonth();
 
-  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) e--;
-  edad.value = e;
-};
+// if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) e--;
+// edad.value = e;
+//};
 
 // 🔎 Watch validaciones
 watch([nombre, email, fechaNacimiento, telefono, mensaje], () => {
@@ -64,32 +69,47 @@ watch([nombre, email, fechaNacimiento, telefono, mensaje], () => {
 
   if (!nombreRegex.test(nombre.value)) error.value = "Nombre inválido";
   if (!emailRegex.test(email.value)) error.value = "Email inválido";
-  if (telefono.value.length < 7 || telefono.value.length > 10)
-    error.value = "Teléfono inválido";
+  if (telefono.value.length !== 10) error.value = "Teléfono inválido";
   if (sqlRegex.test(mensaje.value)) error.value = "Mensaje no permitido";
 
-  calcularEdad();
+  //calcularEdad();
 });
 
 // 📥 CARGAR REGISTROS
+//const cargarRegistros = async () => {
+//const { data, error: err } = await supabase
+//.from("formulario")
+//.select("*")
+//.order("id", { ascending: false });
+
+//if (!err) registros.value = data;
+//};
+// 📥 CARGAR REGISTROS
 const cargarRegistros = async () => {
-  const { data, error: err } = await supabase
-    .from("usuarios")
+  console.log("Cargando registros...");
+
+  const { data, error } = await supabase
+    .from("formulario") // 👈 MISMA TABLA
     .select("*")
     .order("id", { ascending: false });
 
-  if (!err) registros.value = data;
+  if (error) {
+    console.error("Error al cargar:", error);
+  } else {
+    console.log("Datos cargados:", data);
+    registros.value = data;
+  }
 };
 
-// 💾 GUARDAR / ACTUALIZAR
-const guardarUsuario = async () => {
+// 💾 GUARDAR FORMULARIO
+const guardarFormulario = async () => {
   if (error.value) return;
 
   const datos = {
     nombre: nombre.value,
     email: email.value,
     fecha_nacimiento: fechaNacimiento.value,
-    edad: edad.value,
+    // edad: edad.value,
     telefono: telefono.value,
     mensaje: mensaje.value,
   };
@@ -98,31 +118,49 @@ const guardarUsuario = async () => {
 
   if (editando.value) {
     response = await supabase
-      .from("usuarios")
+      .from("formulario")
       .update(datos)
       .eq("id", idEditar.value);
   } else {
-    response = await supabase.from("usuarios").insert([datos]);
+    response = await supabase.from("formulario").insert([datos]);
+
+    // 👉 guardar mensaje también
+    await supabase.from("mensajes").insert({
+      mensaje: mensaje.value,
+    });
   }
 
+  // if (response.error) {
+  // alert("❌ Error al guardar");
+  //console.error(response.error);
+  //} else {
+  //limpiar();
+  //cargarRegistros();
+  //editando.value = false;
+  //}
   if (response.error) {
-    alert("❌ Error al guardar");
-    console.error(response.error);
-  } else {
-    limpiar();
-    cargarRegistros();
-    editando.value = false;
+    console.error("ERROR SUPABASE:", response.error);
+    alert("❌ Error al guardar: " + response.error.message);
+    return;
   }
+
+  // ✅ ÉXITO
+  alert("✅ Datos guardados correctamente");
+
+  limpiar();
+  cargarRegistros();
+  editando.value = false;
 };
 
 // ✏️ EDITAR
 const editar = (registro) => {
+  console.log("✏️ Editando:", registro);
   nombre.value = registro.nombre;
   email.value = registro.email;
   fechaNacimiento.value = registro.fecha_nacimiento;
   telefono.value = registro.telefono;
   mensaje.value = registro.mensaje;
-  edad.value = registro.edad;
+  //edad.value = registro.edad;
 
   idEditar.value = registro.id;
   editando.value = true;
@@ -130,7 +168,7 @@ const editar = (registro) => {
 
 // 🗑️ ELIMINAR
 const eliminar = async (id) => {
-  await supabase.from("usuarios").delete().eq("id", id);
+  await supabase.from("formulario").delete().eq("id", id);
   cargarRegistros();
 };
 
@@ -141,17 +179,21 @@ const limpiar = () => {
   fechaNacimiento.value = "";
   telefono.value = "";
   mensaje.value = "";
-  edad.value = null;
+  //edad.value = null;
   editando.value = false;
+  idEditar.value = null;
 };
 
-onMounted(cargarRegistros);
+onMounted(() => {
+  cargarRegistros();
+});
 </script>
+
 <template>
   <div class="page">
     <div class="card">
-      <h1 class="title">Formulario</h1>
-      <p class="subtitle">Registro de usuarios</p>
+      <h1 class="title">Formulario 📝</h1>
+      <p class="subtitle">Registro de Usuarios</p>
 
       <!-- FORMULARIO -->
       <input
@@ -174,12 +216,12 @@ onMounted(cargarRegistros);
 
       <span v-if="error" class="error">{{ error }}</span>
 
-      <button class="guardar" @click="guardarUsuario">
-        {{ editando ? "Actualizar" : "Agregar" }}
+      <button class="guardar" @click="guardarFormulario">
+        {{ editando ? "Actualizar" : "Enviar" }}
       </button>
 
       <!-- TABLA -->
-      <table v-if="registros.length" class="tabla">
+      <table class="tabla">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -198,7 +240,6 @@ onMounted(cargarRegistros);
             <td>{{ r.telefono }}</td>
             <td>{{ r.mensaje }}</td>
             <td>
-              <button class="editar" @click="editar(r)">Editar</button>
               <button class="eliminar" @click="eliminar(r.id)">Eliminar</button>
             </td>
           </tr>

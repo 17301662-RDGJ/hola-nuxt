@@ -1,15 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: true,
+  ssr: false,
 
   nitro: {
     preset: "netlify",
   },
-
   runtimeConfig: {
     public: {
       supabaseUrl: "https://ghehmklxrcanlxsqilpf.supabase.co",
-      supabaseAnonKey: "sb_publishable_Nmk-_w6ALvBw54tEJ7yyzQ_x47I5qAa",
+      supabaseAnonKey:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZWhta2x4cmNhbmx4c3FpbHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyOTI4MjksImV4cCI6MjA4NDg2ODgyOX0.uR7DPF8F2S9lVPOFfIqY6q-V43q9aGM0-u74gIhdr8I",
 
       // 👇 CLAVE PÚBLICA reCAPTCHA
       recaptchaSiteKey: "6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ",

@@ -25,7 +25,7 @@ function validarCaptcha() {
 <template>
   <div class="page">
     <div class="card">
-      <h1 class="title">Hola Mundo</h1>
+      <h1 class="title">Hola Mundo 🌎✨</h1>
       <h1 class="title">Mi primera app con Nuxt.js</h1>
       <p class="subtitle">Verificación de seguridad</p>
 

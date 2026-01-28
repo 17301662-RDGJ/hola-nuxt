@@ -1,25 +1,20 @@
-import sql from "mssql";
-
-const config = {
-  user: "appuser",
-  password: "rdgj123456789!",
-  server: "localhost",
-  database: "NuxtDB",
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
+import { createClient } from "@supabase/supabase-js";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
-  const pool = await sql.connect(config);
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+  );
 
-  await pool.request().input("texto", sql.NVarChar, body.texto).query(`
-      INSERT INTO Mensajes (Texto)
-      VALUES (@texto)
-    `);
+  const { data, error } = await supabase
+    .from("mensajes")
+    .insert([{ texto: body.texto }]);
 
-  return { success: true };
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true, data };
 });

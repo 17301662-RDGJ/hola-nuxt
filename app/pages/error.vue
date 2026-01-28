@@ -60,7 +60,9 @@
   text-decoration: none;
   font-size: 1rem;
   animation: fadeIn 2s ease-out;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .btn:hover {

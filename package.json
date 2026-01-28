@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/supabase": "^2.0.3",
     "@supabase/supabase-js": "^2.91.1",
     "fund": "^1.0.0",
     "mssql": "^12.2.0",
@@ -19,6 +20,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@types/mssql": "^9.1.8"
+    "@types/mssql": "^9.1.8",
+    "vite-tsconfig-paths": "^6.0.5"
   }
 }

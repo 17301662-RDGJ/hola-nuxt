@@ -1,39 +1,51 @@
 <script setup>
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-// Convertimos la ruta en partes
-const breadcrumbs = route.path
-  .split("/")
-  .filter(Boolean)
-  .map((segment, index, array) => {
-    return {
-      name: segment.charAt(0).toUpperCase() + segment.slice(1),
-      path: "/" + array.slice(0, index + 1).join("/"),
-    };
-  });
+// nombres bonitos para cada ruta
+const routeNames = {
+  opciones: "Opciones",
+  operaciones: "Operaciones",
+  formulario: "Formulario",
+  galeria: "Galería",
+  error: "Error",
+};
+
+const breadcrumbs = computed(() => {
+  const paths = route.path.split("/").filter(Boolean);
+
+  return paths.map((path, index) => ({
+    label: routeNames[path] || path,
+    to: "/" + paths.slice(0, index + 1).join("/"),
+  }));
+});
 </script>
 
 <template>
   <nav class="breadcrumbs">
     <NuxtLink to="/">Inicio</NuxtLink>
 
-    <span v-for="(bc, index) in breadcrumbs" :key="index">
-      <span class="separator"> / </span>
-      <NuxtLink :to="bc.path">{{ bc.name }}</NuxtLink>
+    <span v-for="(bc, i) in breadcrumbs" :key="i">
+      <span class="sep">›</span>
+      <NuxtLink v-if="i < breadcrumbs.length - 1" :to="bc.to">
+        {{ bc.label }}
+      </NuxtLink>
+      <span v-else class="current">{{ bc.label }}</span>
     </span>
   </nav>
 </template>
 
 <style scoped>
 .breadcrumbs {
-  margin-bottom: 20px;
   font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 16px;
 }
 
 .breadcrumbs a {
-  color: #1e3a8a;
+  color: #fcd704;
   text-decoration: none;
   font-weight: 500;
 }
@@ -42,7 +54,12 @@ const breadcrumbs = route.path
   text-decoration: underline;
 }
 
-.separator {
-  color: #64748b;
+.sep {
+  margin: 0 6px;
+}
+
+.current {
+  font-weight: 600;
+  color: #111827;
 }
 </style>

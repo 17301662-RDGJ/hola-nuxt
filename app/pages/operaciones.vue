@@ -52,7 +52,7 @@ const calcular = (operacion) => {
 <template>
   <div class="page">
     <div class="card">
-      <h1 class="title">Operaciones Matemáticas</h1>
+      <h1 class="title">Operaciones Matemáticas 🧮</h1>
       <p class="subtitle">Suma y División con Excepciones</p>
 
       <input

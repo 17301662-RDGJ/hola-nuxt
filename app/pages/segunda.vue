@@ -1,123 +1,100 @@
 <script setup>
-//import Carrusel from "~/components/carrusel.vue";
-import { ref } from "vue";
-
-const texto = ref("");
-
-const guardar = async () => {
-  await $fetch("/api/guardar", {
-    method: "POST",
-    body: {
-      texto: texto.value,
-    },
-  });
-
-  alert("Guardado correctamente");
-  texto.value = "";
-};
+const opciones = [
+  { nombre: "Formulario", ruta: "/formulario", icono: "📝" },
+  { nombre: "Galería", ruta: "/galeria", icono: "🖼️" },
+  { nombre: "Operaciones", ruta: "/operaciones", icono: "➗" },
+  { nombre: "Error", ruta: "/error", icono: "❌" },
+];
 </script>
 
 <template>
-  <div class="page">
-    <div class="card">
-      <h1 class="title">Guardar en SQL Server</h1>
-      <p class="subtitle">Registro de información</p>
+  <div class="contenedor">
+    <!-- TÍTULO -->
+    <div class="header">
+      <h1>Hola Mundo🌎✨</h1>
+      <p>Mi primera app con Nuxt.js</p>
+    </div>
 
-      <input v-model="texto" type="text" placeholder="Escribe algo" />
-
-      <div class="buttons">
-        <button class="guardar" @click="guardar">Guardar</button>
-
-        <NuxtLink to="/" class="regresar"> Regresar </NuxtLink>
-      </div>
+    <!-- MENÚ CENTRAL -->
+    <div class="menu">
+      <NuxtLink
+        v-for="item in opciones"
+        :key="item.ruta"
+        :to="item.ruta"
+        class="card"
+      >
+        <span class="icono">{{ item.icono }}</span>
+        <span class="texto">{{ item.nombre }}</span>
+      </NuxtLink>
     </div>
   </div>
-  <h1>Carrusel de Fotos 📸</h1>
-  <Carrusel />
 </template>
 
 <style scoped>
-/* Fondo general */
-.page {
+/* CONTENEDOR GENERAL */
+.contenedor {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  padding: 24px;
 }
 
-/* Tarjeta */
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  color: #0f172a;
+}
+
+.header p {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+/* GRID DEL MENÚ */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* TARJETAS */
 .card {
   background: white;
-  width: 360px;
-  padding: 35px 30px;
-  border-radius: 14px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  border-radius: 20px;
+  padding: 32px;
   text-align: center;
-}
-
-/* Títulos */
-.title {
-  font-size: 26px;
-  font-weight: 600;
-  color: #1e3a8a;
-  margin-bottom: 6px;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #475569;
-  margin-bottom: 25px;
-}
-
-/* Input */
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  font-size: 15px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-input:focus {
-  outline: none;
-  border-color: #1e3a8a;
-}
-
-/* Botones */
-.buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.guardar {
-  background-color: #1e3a8a;
-  color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.guardar:hover {
-  background-color: #1e40af;
-}
-
-.regresar {
-  background-color: #dc2626;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-size: 15px;
   text-decoration: none;
+  color: #0f172a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-.regresar:hover {
-  background-color: #b91c1c;
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ICONO */
+.icono {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* TEXTO */
+.texto {
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 </style>

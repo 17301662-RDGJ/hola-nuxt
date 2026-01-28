@@ -1,18 +1,12 @@
-import sql from "mssql";
-
-const config = {
-  user: "appuser",
-  password: "rdgj123456789!",
-  server: "localhost",
-  database: "NuxtDB",
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-  },
-};
+import { createClient } from "@supabase/supabase-js";
 
 export default defineEventHandler(async () => {
-  const pool = await sql.connect(config);
-  const result = await pool.request().query("SELECT 1 AS ok");
-  return result.recordset;
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+  );
+
+  const { data, error } = await supabase.from("mensajes").select("*").limit(1);
+
+  return { data, error };
 });
