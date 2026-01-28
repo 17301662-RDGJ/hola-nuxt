@@ -17,7 +17,8 @@
     "nuxt": "^4.2.2",
     "vue": "^3.5.26",
     "vue-recaptcha-v3": "^2.0.1",
-    "vue-router": "^4.6.4"
+    "vue-router": "^4.6.4",
+    "vue3-recaptcha-v2": "^2.1.0"
   },
   "devDependencies": {
     "@types/mssql": "^9.1.8",
