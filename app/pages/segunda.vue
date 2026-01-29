@@ -8,6 +8,7 @@ const opciones = [
 </script>
 
 <template>
+  <Breadcrumbs />
   <div class="contenedor">
     <!-- TÍTULO -->
     <div class="header">

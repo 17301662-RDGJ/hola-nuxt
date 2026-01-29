@@ -1,4 +1,5 @@
 <template>
+  <Breadcrumbs />
   <div class="error-page">
     <div class="overlay">
       <!-- TEXTO ANIMADO -->

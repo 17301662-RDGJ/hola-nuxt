@@ -117,6 +117,7 @@ const cargarFotos = async () => {
 </script>
 
 <template>
+  <Breadcrumbs />
   <div class="page">
     <div class="card">
       <h2 class="title">Galería de Imágenes 🖼️</h2>

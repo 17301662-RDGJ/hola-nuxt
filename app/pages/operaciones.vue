@@ -50,6 +50,7 @@ const calcular = (operacion) => {
 </script>
 
 <template>
+  <Breadcrumbs />
   <div class="page">
     <div class="card">
       <h1 class="title">Operaciones Matemáticas 🧮</h1>

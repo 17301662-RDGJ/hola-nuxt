@@ -1,3 +1,6 @@
+<script setup>
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
+</script>
 <template>
   <div>
     <!-- Navbar fijo -->
