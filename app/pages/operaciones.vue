@@ -84,84 +84,132 @@ const calcular = (operacion) => {
 </template>
 
 <style scoped>
+/* 🔥 TEXTO GLOBAL EN BLANCO */
+* {
+  color: white !important;
+}
+
+/* Placeholders en blanco */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Página principal */
 .page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  background: radial-gradient(
+    circle at top left,
+    #3b82f6,
+    #1e3a8a 40%,
+    #0f172a 90%
+  );
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 40px;
   font-family: "Segoe UI", system-ui, sans-serif;
 }
 
+/* Tarjeta glass */
 .card {
-  background: white;
-  width: 360px;
-  padding: 35px 30px;
-  border-radius: 14px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  width: 420px;
+  padding: 40px 35px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   text-align: center;
+  animation: fadeIn 0.8s ease;
 }
 
+/* Fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Título */
 .title {
-  font-size: 26px;
-  font-weight: 600;
-  color: #1e3a8a;
-  margin-bottom: 6px;
+  font-size: 28px;
+  font-weight: 700;
 }
 
+/* Subtítulo */
 .subtitle {
-  font-size: 14px;
-  color: #475569;
-  margin-bottom: 25px;
+  font-size: 15px;
+  opacity: 0.9;
 }
 
+/* Inputs */
 input {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
   font-size: 15px;
-  text-align: center;
   margin-bottom: 20px;
+  text-align: center;
+  transition: all 0.25s ease;
 }
 
 input:focus {
+  background: rgba(255, 255, 255, 0.17);
+  border-color: #60a5fa;
   outline: none;
-  border-color: #1e3a8a;
 }
 
+/* Botones */
 .buttons {
   display: flex;
-  gap: 12px;
   justify-content: center;
+  gap: 15px;
   margin-bottom: 15px;
 }
 
 .guardar {
-  background-color: #1e3a8a;
-  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
   border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
+  background: #1d4ed8;
   font-size: 15px;
   cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
 }
 
 .guardar:hover {
-  background-color: #1e40af;
+  background: #1e40af;
+  transform: translateY(-2px);
 }
 
+/* Botón regresar */
 .regresar {
   display: inline-block;
-  background-color: #dc2626;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 8px;
+  margin-top: 20px;
+  background-color: #1e40af;
+  padding: 12px 22px;
+  border-radius: 10px;
   font-size: 15px;
   text-decoration: none;
+  transition: 0.25s ease;
 }
 
 .regresar:hover {
-  background-color: #b91c1c;
+  background: #1e40af;
+  transform: translateY(-2px);
+}
+
+/* Resultado */
+p strong {
+  font-size: 18px;
+  color: white !important;
 }
 </style>

@@ -1,9 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 export default defineEventHandler(async () => {
+  const config = useRuntimeConfig();
+
   const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
+    config.public.supabaseUrl, // <-- CORRECTO
+    config.supabaseServiceKey, // <-- CORRECTO
   );
 
   const { data, error } = await supabase.from("mensajes").select("*").limit(1);

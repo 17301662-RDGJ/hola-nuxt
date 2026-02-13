@@ -5,19 +5,41 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const captchaValido = ref(false);
 
+function renderCaptcha() {
+  const id = "recaptcha-container";
+
+  // Limpia el contenedor (importante en SPA)
+  document.getElementById(id).innerHTML = "";
+
+  if (window.grecaptcha) {
+    window.grecaptcha.render(id, {
+      sitekey: "6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ",
+      callback: () => {
+        captchaValido.value = true;
+      },
+    });
+  } else {
+    // Espera a que cargue el script
+    window.onloadCallback = () => {
+      window.grecaptcha.render(id, {
+        sitekey: "6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ",
+        callback: () => {
+          captchaValido.value = true;
+        },
+      });
+    };
+  }
+}
+
 onMounted(() => {
-  // 👇 el callback DEBE estar en window
-  window.onCaptchaSuccess = function () {
-    captchaValido.value = true;
-    console.log("Captcha validado correctamente");
-  };
+  renderCaptcha();
 });
 
 function validarCaptcha() {
   if (captchaValido.value) {
     router.push("/segunda");
   } else {
-    router.push("/error"); // 👉 página con imagen de error
+    router.push("/error");
   }
 }
 </script>
@@ -29,14 +51,8 @@ function validarCaptcha() {
       <h1 class="title">Mi primera app con Nuxt.js</h1>
       <p class="subtitle">Verificación de seguridad</p>
 
-      <!-- ✅ reCAPTCHA OFICIAL -->
-      <div
-        class="g-recaptcha"
-        data-sitekey="6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ"
-        data-callback="onCaptchaSuccess"
-      ></div>
+      <div id="recaptcha-container"></div>
 
-      <!-- ✅ BOTÓN FUNCIONAL -->
       <button @click="validarCaptcha">Continuar</button>
     </div>
   </div>

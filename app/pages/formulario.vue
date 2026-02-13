@@ -251,97 +251,202 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* --- LAYOUT GENERAL --- */
+/* --- LAYOUT GENERAL (IGUAL QUE OPERACIONES) --- */
 .page {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a, #1e3a8a);
   display: flex;
   justify-content: center;
-  align-items: center;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  align-items: flex-start;
+  padding: 40px 20px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  color: white;
 }
 
+/* --- CARD TRANSPARENTE MODERNA --- */
 .card {
-  background: white;
-  width: 800px;
-  padding: 35px 30px;
-  border-radius: 14px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-  text-align: center;
+  width: 900px;
+  padding: 35px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.5s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .title {
-  font-size: 26px;
-  font-weight: 600;
-  color: #1e3a8a;
+  font-size: 32px;
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-align: center;
 }
 
 .subtitle {
-  font-size: 14px;
-  color: #475569;
-  margin-bottom: 20px;
+  font-size: 16px;
+  color: #e2e8f0;
+  margin-bottom: 25px;
+  text-align: center;
 }
 
-input {
+/* --- INPUTS ESTILO MODERNO OSCURO --- */
+input,
+textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  margin-bottom: 10px;
+  padding: 13px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 15px;
+  color: white;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #d1d5db;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+  outline: none;
+}
+
+/* TEXTAREA */
+textarea {
+  height: 110px;
+  resize: none;
+}
+
+/* --- BOTÓN GUARDAR --- */
 .guardar {
-  background-color: #1e3a8a;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
   width: 100%;
-  margin-bottom: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
 }
 
+.guardar:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-2px);
+}
+
+/* --- ERROR --- */
 .error {
-  color: #dc2626;
-  font-size: 13px;
+  color: #f87171;
+  font-size: 14px;
   margin-bottom: 10px;
   display: block;
+  font-weight: 500;
 }
 
+/* --- TABLA MODO OSCURO --- */
 .tabla {
   width: 100%;
   border-collapse: collapse;
-}
-
-.tabla th,
-.tabla td {
-  border: 1px solid #cbd5e1;
-  padding: 8px;
+  margin-top: 25px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  color: white;
+  backdrop-filter: blur(10px);
 }
 
 .tabla th {
-  background-color: #1e3a8a;
-  color: white;
+  background: rgba(30, 58, 138, 0.7);
+  color: #ffffff;
+  padding: 14px;
+  font-size: 15px;
 }
 
-.editar {
-  background: #facc15;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin-right: 5px;
+.tabla td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 14px;
+  color: #e2e8f0;
 }
 
+.tabla tr:hover td {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- BOTÓN ELIMINAR --- */
 .eliminar {
   background: #dc2626;
   color: white;
   border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
 }
 
-.regresar {
-  display: inline-block;
-  margin-top: 15px;
-  color: #1e3a8a;
-  text-decoration: none;
+.eliminar:hover {
+  background: #b91c1c;
+  transform: scale(1.05);
+}
+/* --- COLOR GLOBAL DEL TEXTO EN ESTA VISTA --- */
+* {
+  color: white !important;
+}
+
+/* Placeholders blancos */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Inputs con texto blanco */
+input,
+textarea {
+  color: white !important;
+}
+
+/* Tabla texto blanco */
+.tabla td,
+.tabla th {
+  color: white !important;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    padding: 25px;
+  }
+
+  .tabla th,
+  .tabla td {
+    padding: 10px;
+    font-size: 12px;
+  }
 }
 </style>
