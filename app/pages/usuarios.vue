@@ -7,24 +7,27 @@
     <div class="card">
       <form @submit.prevent="guardar">
         <div class="form-grid">
+          <!-- CAMPOS ORIGINALES -->
           <input
             v-model="nombre"
             placeholder="Nombre"
             required
             :class="{ 'input-error': errores.nombre }"
           />
-          <span v-if="errores.nombre" class="msg-error">{{
-            errores.nombre
-          }}</span>
+          <span v-if="errores.nombre" class="msg-error">
+            {{ errores.nombre }}
+          </span>
+
           <input
             v-model="apellidos"
             placeholder="Apellidos"
             required
             :class="{ 'input-error': errores.apellidos }"
           />
-          <span v-if="errores.apellidos" class="msg-error">{{
-            errores.apellidos
-          }}</span>
+          <span v-if="errores.apellidos" class="msg-error">
+            {{ errores.apellidos }}
+          </span>
+
           <input
             v-model="edad"
             placeholder="Edad"
@@ -43,9 +46,9 @@
             <option value="Femenino">Femenino</option>
             <option value="Otro">Otro</option>
           </select>
-          <span v-if="errores.genero" class="msg-error">{{
-            errores.genero
-          }}</span>
+          <span v-if="errores.genero" class="msg-error">
+            {{ errores.genero }}
+          </span>
 
           <select
             v-model="estado_civil"
@@ -58,9 +61,9 @@
             <option value="Divorciado">Divorciado</option>
             <option value="Viudo">Viudo</option>
           </select>
-          <span v-if="errores.estado_civil" class="msg-error">{{
-            errores.estado_civil
-          }}</span>
+          <span v-if="errores.estado_civil" class="msg-error">
+            {{ errores.estado_civil }}
+          </span>
 
           <input
             v-model="telefono"
@@ -68,18 +71,39 @@
             required
             :class="{ 'input-error': errores.telefono }"
           />
-          <span v-if="errores.telefono" class="msg-error">{{
-            errores.telefono
-          }}</span>
+          <span v-if="errores.telefono" class="msg-error">
+            {{ errores.telefono }}
+          </span>
+
           <input
             v-model="email"
             placeholder="Email"
             required
             :class="{ 'input-error': errores.email }"
           />
-          <span v-if="errores.email" class="msg-error">{{
-            errores.email
-          }}</span>
+          <span v-if="errores.email" class="msg-error">
+            {{ errores.email }}
+          </span>
+
+          <input
+            type="date"
+            v-model="fecha_inicial"
+            required
+            :class="{ 'input-error': errores.fecha_inicial }"
+          />
+          <span v-if="errores.fecha_inicial" class="msg-error">
+            {{ errores.fecha_inicial }}
+          </span>
+
+          <input
+            type="date"
+            v-model="fecha_final"
+            required
+            :class="{ 'input-error': errores.fecha_final }"
+          />
+          <span v-if="errores.fecha_final" class="msg-error">
+            {{ errores.fecha_final }}
+          </span>
         </div>
 
         <button class="btn-primary">
@@ -89,6 +113,8 @@
     </div>
 
     <hr />
+
+    <!-- 🔍 FILTROS -->
     <div class="filtros">
       <input
         v-model="filtroTexto"
@@ -109,8 +135,13 @@
         <option value="Divorciado">Divorciado</option>
         <option value="Viudo">Viudo</option>
       </select>
+
+      <!-- FILTROS POR FECHAS DEL USUARIO -->
+      <input type="date" v-model="fechaInicio" />
+      <input type="date" v-model="fechaFin" />
     </div>
 
+    <!-- LISTA -->
     <ul id="lista" class="list">
       <li v-for="u in listaFiltrada" :key="u.id" class="list-item">
         <div class="user-info">
@@ -120,6 +151,10 @@
           <span>Estado civil: {{ u.estado_civil }}</span>
           <span>Tel: {{ u.telefono }}</span>
           <span>Email: {{ u.email }}</span>
+
+          <!-- 🔥 NUEVAS FECHAS -->
+          <span>Desde: {{ u.fecha_inicial }}</span>
+          <span>Hasta: {{ u.fecha_final }}</span>
         </div>
 
         <div class="actions">
@@ -128,6 +163,9 @@
         </div>
       </li>
     </ul>
+  </div>
+  <div id="toast" class="toast" v-show="toastVisible">
+    {{ toastMessage }}
   </div>
 </template>
 
@@ -144,12 +182,17 @@ const estado_civil = ref("");
 const telefono = ref("");
 const email = ref("");
 
+const fecha_inicial = ref("");
+const fecha_final = ref("");
+
 const errores = ref({});
 const lista = ref([]);
 
 const filtroTexto = ref("");
 const filtroGenero = ref("");
 const filtroEstado = ref("");
+const fechaInicio = ref("");
+const fechaFin = ref("");
 
 const editando = ref(false);
 let idActual = null;
@@ -161,20 +204,36 @@ const { obtenerUsuarios, agregarUsuario, actualizarUsuario, eliminarUsuario } =
 function validarCampo(campo, valor) {
   switch (campo) {
     case "nombre":
-      if (!valor.trim()) return "El nombre es obligatorio.";
+      if (!valor || valor.trim().length === 0)
+        return "El nombre es obligatorio y no puede estar vacío.";
+      if (valor.trim().length > 80)
+        return "El nombre no puede exceder 80 caracteres.";
       if (!/^[a-zA-ZÁÉÍÓÚÑáéíóúñ ]+$/.test(valor))
-        return "El nombre solo puede contener letras.";
+        return "El nombre solo puede contener letras y espacios.";
       break;
 
     case "apellidos":
-      if (!valor.trim()) return "Los apellidos son obligatorios.";
+      if (!valor || valor.trim().length === 0)
+        return "Los apellidos son obligatorios y no pueden estar vacíos.";
+      if (valor.trim().length > 80)
+        return "Los apellidos no pueden exceder 80 caracteres.";
       if (!/^[a-zA-ZÁÉÍÓÚÑáéíóúñ ]+$/.test(valor))
-        return "Los apellidos solo pueden contener letras.";
+        return "Los apellidos solo pueden contener letras y espacios.";
+      break;
+
+    case "email":
+      if (!valor || valor.trim().length === 0)
+        return "El email es obligatorio.";
+      if (valor.length > 40) return "El email no puede exceder 40 caracteres.";
+      if (valor.includes(" ")) return "El email no debe contener espacios.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor))
+        return "El email no es válido. Debe contener '@' y un dominio correcto.";
       break;
 
     case "edad":
       if (!valor) return "La edad es obligatoria.";
-      if (isNaN(valor) || valor <= 0) return "La edad debe ser válida.";
+      if (!/^[0-9]{1,2}$/.test(valor))
+        return "La edad debe contener solo números (1 o 2 dígitos).";
       break;
 
     case "genero":
@@ -188,13 +247,17 @@ function validarCampo(campo, valor) {
     case "telefono":
       if (!valor.trim()) return "El teléfono es obligatorio.";
       if (!/^[0-9]{8,10}$/.test(valor))
-        return "Debe tener entre 8 y 15 dígitos.";
+        return "El teléfono debe tener entre 8 y 10 dígitos.";
       break;
 
-    case "email":
-      if (!valor.trim()) return "El email es obligatorio.";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor))
-        return "El email no es válido.";
+    case "fecha_inicial":
+      if (!valor) return "La fecha inicial es obligatoria.";
+      break;
+
+    case "fecha_final":
+      if (!valor) return "La fecha final es obligatoria.";
+      if (fecha_inicial.value && valor < fecha_inicial.value)
+        return "La fecha final no puede ser menor que la fecha inicial.";
       break;
   }
 
@@ -210,12 +273,14 @@ function validarTodo() {
     estado_civil: validarCampo("estado_civil", estado_civil.value),
     telefono: validarCampo("telefono", telefono.value),
     email: validarCampo("email", email.value),
+    fecha_inicial: validarCampo("fecha_inicial", fecha_inicial.value),
+    fecha_final: validarCampo("fecha_final", fecha_final.value),
   };
 
   return Object.values(errores.value).every((e) => !e);
 }
 
-// ========== VALIDACIÓN EN TIEMPO REAL ==========
+// Watchers tiempo real
 watch(nombre, (v) => (errores.value.nombre = validarCampo("nombre", v)));
 watch(
   apellidos,
@@ -230,10 +295,19 @@ watch(
 watch(telefono, (v) => (errores.value.telefono = validarCampo("telefono", v)));
 watch(email, (v) => (errores.value.email = validarCampo("email", v)));
 
-// ========== GUARDAR ==========
+watch(
+  fecha_inicial,
+  (v) => (errores.value.fecha_inicial = validarCampo("fecha_inicial", v)),
+);
+watch(
+  fecha_final,
+  (v) => (errores.value.fecha_final = validarCampo("fecha_final", v)),
+);
+
+// GUARDAR
 const guardar = async () => {
   if (!validarTodo()) {
-    alert("Corrige los campos en rojo antes de continuar.");
+    showToast("Corrige los campos en rojo antes de continuar.");
     return;
   }
 
@@ -245,20 +319,24 @@ const guardar = async () => {
     estado_civil: estado_civil.value,
     telefono: telefono.value,
     email: email.value,
+    fecha_inicial: fecha_inicial.value,
+    fecha_final: fecha_final.value,
   };
 
   if (!editando.value) {
     await agregarUsuario(user);
+    showToast("Usuario agregado correctamente ✔");
   } else {
     await actualizarUsuario(idActual, user);
     editando.value = false;
+    showToast("Usuario actualizado correctamente ✔");
   }
 
   limpiar();
   cargar();
 };
 
-// ========== LIMPIAR ==========
+// LIMPIAR
 function limpiar() {
   nombre.value = "";
   apellidos.value = "";
@@ -267,10 +345,12 @@ function limpiar() {
   estado_civil.value = "";
   telefono.value = "";
   email.value = "";
+  fecha_inicial.value = "";
+  fecha_final.value = "";
   errores.value = {};
 }
 
-// ========== CRUD ==========
+// CRUD
 const cargar = async () => (lista.value = await obtenerUsuarios());
 const borrar = async (id) => {
   await eliminarUsuario(id);
@@ -286,11 +366,14 @@ const editar = (u) => {
   telefono.value = u.telefono;
   email.value = u.email;
 
+  fecha_inicial.value = u.fecha_inicial;
+  fecha_final.value = u.fecha_final;
+
   idActual = u.id;
   editando.value = true;
 };
 
-// ========== FILTRO ==========
+// FILTROS
 const listaFiltrada = computed(() =>
   lista.value.filter((u) => {
     const text = (
@@ -303,13 +386,38 @@ const listaFiltrada = computed(() =>
       u.telefono
     ).toLowerCase();
 
-    return (
-      text.includes(filtroTexto.value.toLowerCase()) &&
-      (filtroGenero.value === "" || u.genero === filtroGenero.value) &&
-      (filtroEstado.value === "" || u.estado_civil === filtroEstado.value)
-    );
+    const coincideTexto = text.includes(filtroTexto.value.toLowerCase());
+    const coincideGenero =
+      !filtroGenero.value || u.genero === filtroGenero.value;
+    const coincideEstado =
+      !filtroEstado.value || u.estado_civil === filtroEstado.value;
+
+    // FECHAS GUARDADAS DEL USUARIO
+    const fechaRegistro = new Date(u.fecha_inicial);
+    const inicio = fechaInicio.value ? new Date(fechaInicio.value) : null;
+    const fin = fechaFin.value ? new Date(fechaFin.value) : null;
+
+    const coincideFecha =
+      (!inicio || fechaRegistro >= inicio) && (!fin || fechaRegistro <= fin);
+
+    return coincideTexto && coincideGenero && coincideEstado && coincideFecha;
   }),
 );
+const toastVisible = ref(false);
+const toastMessage = ref("");
+
+function showToast(msg) {
+  toastMessage.value = msg;
+  toastVisible.value = true;
+
+  const toastEl = document.getElementById("toast");
+  toastEl.classList.add("show");
+
+  setTimeout(() => {
+    toastEl.classList.remove("show");
+    toastVisible.value = false;
+  }, 2500);
+}
 
 onMounted(() => cargar());
 </script>
@@ -524,5 +632,26 @@ select.input-error {
 
 .filtros input {
   width: 260px; /* igualar tamaños */
+}
+.toast {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  background: #16a34a;
+  color: white !important;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1 !important;
+  transform: translateY(0);
 }
 </style>

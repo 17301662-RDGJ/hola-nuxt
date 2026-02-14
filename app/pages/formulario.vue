@@ -252,7 +252,6 @@ onMounted(() => {
 
 <style scoped>
 /* --- LAYOUT GENERAL --- */
-/* --- LAYOUT GENERAL (IGUAL QUE OPERACIONES) --- */
 .page {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a, #1e3a8a);

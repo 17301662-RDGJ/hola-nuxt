@@ -3,6 +3,7 @@ const opciones = [
   { nombre: "Formulario", ruta: "/formulario", icono: "📝" },
   { nombre: "Galería", ruta: "/galeria", icono: "🖼️" },
   { nombre: "Operaciones", ruta: "/operaciones", icono: "➗" },
+  { nombre: "Usuarios", ruta: "/usuarios", icono: "👤" },
   { nombre: "Error", ruta: "/error", icono: "❌" },
 ];
 </script>
