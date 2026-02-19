@@ -25,7 +25,7 @@ const sqlRegex = /(select|insert|delete|drop|update|--|;|'|")/i;
 
 // ✋ Validaciones
 const soloLetras = () => {
-  nombre.value = nombre.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 60);
+  nombre.value = nombre.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 30);
 };
 
 const soloNumeros = () => {
