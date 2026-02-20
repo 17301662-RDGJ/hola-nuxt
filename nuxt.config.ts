@@ -13,10 +13,10 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
       supabaseTable: "formulario",
-      recaptchaSiteKey: "6Lc2wHEsAAAAAPvJ3YYau5pRAIGTED4CCDGW6fjb",
+      recaptchaSiteKey: "6LcHBE8sAAAAALVWubMRxb5pxhvlv-j83TmnEPXJ",
     },
 
-    recaptchaSecretKey: "6Lc2wHEsAAAAAMV-3Ifo9dylqK7101pnoPs6VjX5",
+    recaptchaSecretKey: "6LcHBE8sAAAAADnSWiOZV0X2afRBQ4mX6QpfBNB3",
   },
 
   nitro: {},
