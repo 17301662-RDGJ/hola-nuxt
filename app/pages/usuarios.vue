@@ -5,27 +5,19 @@
     <h1>Bienvenido al Registro de Usuarios</h1>
 
     <!-- BOTÓN NUEVO USUARIO -->
-    <button @click="mostrarFormulario = !mostrarFormulario" class="btn-toggle">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        fill="currentColor"
-        viewBox="0 0 16 16"
-      >
-        <path
-          d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-        />
-      </svg>
-      {{ mostrarFormulario ? "Cancelar" : "Nuevo usuario" }}
-    </button>
+    <button @click="abrirModal" class="btn-toggle">Nuevo usuario</button>
 
-    <!-- FORMULARIO MOSTRAR/OCULTAR -->
-    <transition name="slide-fade">
-      <div v-if="mostrarFormulario" class="card">
+    <!-- MODAL -->
+    <div
+      v-if="mostrarFormulario"
+      class="modal-overlay"
+      @click.self="cerrarModal"
+    >
+      <div class="modal">
+        <h2>{{ editando ? "Editar Usuario" : "Nuevo Usuario" }}</h2>
+
         <form @submit.prevent="guardar">
           <div class="form-grid">
-            <!-- CAMPOS ORIGINALES + VALIDACIÓN -->
             <input
               v-model="nombre"
               placeholder="Nombre"
@@ -105,33 +97,20 @@
               errores.email
             }}</span>
 
-            <input
-              type="date"
-              v-model="fecha_inicial"
-              required
-              :class="{ 'input-error': errores.fecha_inicial }"
-            />
-            <span v-if="errores.fecha_inicial" class="msg-error">{{
-              errores.fecha_inicial
-            }}</span>
-
-            <input
-              type="date"
-              v-model="fecha_final"
-              required
-              :class="{ 'input-error': errores.fecha_final }"
-            />
-            <span v-if="errores.fecha_final" class="msg-error">{{
-              errores.fecha_final
-            }}</span>
+            <input type="date" v-model="fecha_inicial" required />
+            <input type="date" v-model="fecha_final" required />
           </div>
 
           <button class="btn-primary">
             {{ editando ? "Actualizar" : "Agregar" }}
           </button>
+
+          <button type="button" class="btn-cancel" @click="cerrarModal">
+            Cancelar
+          </button>
         </form>
       </div>
-    </transition>
+    </div>
 
     <hr />
 
@@ -162,27 +141,40 @@
     </div>
 
     <!-- LISTA -->
-    <ul id="lista" class="list">
-      <li v-for="u in usuariosPaginados" :key="u.id" class="list-item">
-        <div class="user-info">
-          <strong>{{ u.nombre }} {{ u.apellidos }}</strong>
-          <span>Edad: {{ u.edad }}</span>
-          <span>Género: {{ u.genero }}</span>
-          <span>Estado civil: {{ u.estado_civil }}</span>
-          <span>Tel: {{ u.telefono }}</span>
-          <span>Email: {{ u.email }}</span>
-          <span>Desde: {{ u.fecha_inicial }}</span>
-          <span>Hasta: {{ u.fecha_final }}</span>
-        </div>
+    <table class="tabla-usuarios">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Edad</th>
+          <th>Género</th>
+          <th>Estado Civil</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Fecha Inicial</th>
+          <th>Fecha Final</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
 
-        <div class="actions">
-          <button @click="editar(u)" class="btn-edit">Editar</button>
-          <button @click="borrar(u.id)" class="btn-delete">Eliminar</button>
-        </div>
-      </li>
-    </ul>
+      <tbody>
+        <tr v-for="u in usuariosPaginados" :key="u.id">
+          <td>{{ u.nombre }} {{ u.apellidos }}</td>
+          <td>{{ u.edad }}</td>
+          <td>{{ u.genero }}</td>
+          <td>{{ u.estado_civil }}</td>
+          <td>{{ u.telefono }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.fecha_inicial }}</td>
+          <td>{{ u.fecha_final }}</td>
+          <td class="acciones">
+            <button @click="editar(u)" class="btn-edit">Editar</button>
+            <button @click="borrar(u.id)" class="btn-delete">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- PAGINACIÓN MINIMALISTA -->
+    <!-- PAGINACIÓN -->
     <div class="pagination">
       <button @click="paginaActual--" :disabled="paginaActual === 1">
         &lt;
@@ -212,9 +204,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useUsuarios } from "~/composables/useUsuarios";
 
+// MODAL CONTROL
 const mostrarFormulario = ref(false);
 
 // CAMPOS
@@ -231,7 +224,9 @@ const fecha_final = ref("");
 // ERRORES
 const errores = ref({});
 
-// LISTA
+// CRUD
+const { obtenerUsuarios, agregarUsuario, actualizarUsuario, eliminarUsuario } =
+  useUsuarios();
 const lista = ref([]);
 
 // FILTROS
@@ -241,6 +236,7 @@ const filtroEstado = ref("");
 const fechaInicio = ref("");
 const fechaFin = ref("");
 
+// EDITAR
 const editando = ref(false);
 let idActual = null;
 
@@ -248,113 +244,58 @@ let idActual = null;
 const paginaActual = ref(1);
 const porPagina = ref(5);
 
-// CRUD
-const { obtenerUsuarios, agregarUsuario, actualizarUsuario, eliminarUsuario } =
-  useUsuarios();
+// ------------ MODAL ------------
+const abrirModal = () => {
+  mostrarFormulario.value = true;
+};
 
-// VALIDACIONES ORIGINALES
+const cerrarModal = () => {
+  mostrarFormulario.value = false;
+  limpiar();
+};
+
+// ---------- VALIDACIONES ----------
 function validarCampo(campo, valor) {
   switch (campo) {
     case "nombre":
-      if (!valor || valor.trim().length === 0)
-        return "El nombre es obligatorio.";
-      if (valor.trim().length > 25)
-        return "El nombre no puede exceder 25 caracteres.";
-      if (!/^[a-zA-ZÁÉÍÓÚÑáéíóúñ ]+$/.test(valor))
-        return "Solo se permiten letras.";
+      if (!valor.trim()) return "El nombre es obligatorio.";
+      if (valor.length > 25) return "Máximo 25 caracteres.";
       break;
-
     case "apellidos":
-      if (!valor || valor.trim().length === 0)
-        return "Los apellidos son obligatorios.";
-      if (valor.trim().length > 30) return "No puede exceder 30 caracteres.";
-      if (!/^[a-zA-ZÁÉÍÓÚÑáéíóúñ ]+$/.test(valor))
-        return "Solo se permiten letras.";
+      if (!valor.trim()) return "Los apellidos son obligatorios.";
+      if (valor.length > 30) return "Máximo 30 caracteres.";
       break;
-
     case "edad":
-      if (!valor) return "La edad es obligatoria.";
       if (!/^[0-9]{1,2}$/.test(valor)) return "Edad inválida.";
       break;
-
-    case "genero":
-      if (!valor) return "Selecciona género.";
-      break;
-
-    case "estado_civil":
-      if (!valor) return "Selecciona estado civil.";
-      break;
-
     case "telefono":
-      if (!valor.trim()) return "El teléfono es obligatorio.";
-      if (!/^[0-9]{8,10}$/.test(valor))
-        return "Debe tener entre 8 y 10 dígitos.";
+      if (!/^[0-9]{8,10}$/.test(valor)) return "Debe tener 8-10 dígitos.";
       break;
-
     case "email":
-      if (!valor || valor.trim().length === 0)
-        return "El email es obligatorio.";
-      if (valor.length > 40) return "No puede exceder 40 caracteres.";
-      if (valor.includes(" ")) return "No debe contener espacios.";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) return "Email inválido.";
-      break;
-
-    case "fecha_inicial":
-      if (!valor) return "La fecha inicial es obligatoria.";
-      break;
-
-    case "fecha_final":
-      if (!valor) return "La fecha final es obligatoria.";
-      if (fecha_inicial.value && valor < fecha_inicial.value)
-        return "La fecha final no puede ser menor que la inicial.";
       break;
   }
   return null;
 }
 
-// VALIDACIÓN COMPLETA
+// Validación al guardar
 function validarTodo() {
   errores.value = {
     nombre: validarCampo("nombre", nombre.value),
     apellidos: validarCampo("apellidos", apellidos.value),
     edad: validarCampo("edad", edad.value),
-    genero: validarCampo("genero", genero.value),
-    estado_civil: validarCampo("estado_civil", estado_civil.value),
+    genero: !genero.value ? "Selecciona género." : null,
+    estado_civil: !estado_civil.value ? "Selecciona estado civil." : null,
     telefono: validarCampo("telefono", telefono.value),
     email: validarCampo("email", email.value),
-    fecha_inicial: validarCampo("fecha_inicial", fecha_inicial.value),
-    fecha_final: validarCampo("fecha_final", fecha_final.value),
   };
   return Object.values(errores.value).every((e) => !e);
 }
 
-// WATCHERS
-watch(nombre, (v) => (errores.value.nombre = validarCampo("nombre", v)));
-watch(
-  apellidos,
-  (v) => (errores.value.apellidos = validarCampo("apellidos", v)),
-);
-watch(edad, (v) => (errores.value.edad = validarCampo("edad", v)));
-watch(genero, (v) => (errores.value.genero = validarCampo("genero", v)));
-watch(
-  estado_civil,
-  (v) => (errores.value.estado_civil = validarCampo("estado_civil", v)),
-);
-watch(telefono, (v) => (errores.value.telefono = validarCampo("telefono", v)));
-watch(email, (v) => (errores.value.email = validarCampo("email", v)));
-watch(
-  fecha_inicial,
-  (v) => (errores.value.fecha_inicial = validarCampo("fecha_inicial", v)),
-);
-watch(
-  fecha_final,
-  (v) => (errores.value.fecha_final = validarCampo("fecha_final", v)),
-);
-
-// CRUD FUNCIONES
+// CRUD
 const guardar = async () => {
   if (!validarTodo()) {
-    showToast("Corrige los campos marcados antes de continuar.");
+    showToast("Corrige los campos marcados.");
     return;
   }
 
@@ -380,7 +321,29 @@ const guardar = async () => {
   }
 
   limpiar();
-  mostrarFormulario.value = false;
+  cerrarModal();
+  cargar();
+};
+
+const editar = (u) => {
+  abrirModal();
+
+  nombre.value = u.nombre;
+  apellidos.value = u.apellidos;
+  edad.value = u.edad;
+  genero.value = u.genero;
+  estado_civil.value = u.estado_civil;
+  telefono.value = u.telefono;
+  email.value = u.email;
+  fecha_inicial.value = u.fecha_inicial;
+  fecha_final.value = u.fecha_final;
+
+  idActual = u.id;
+  editando.value = true;
+};
+
+const borrar = async (id) => {
+  await eliminarUsuario(id);
   cargar();
 };
 
@@ -397,60 +360,30 @@ const limpiar = () => {
   errores.value = {};
 };
 
-const cargar = async () => (lista.value = await obtenerUsuarios());
-
-const borrar = async (id) => {
-  await eliminarUsuario(id);
-  cargar();
+const cargar = async () => {
+  lista.value = await obtenerUsuarios();
 };
 
-const editar = (u) => {
-  mostrarFormulario.value = true;
-
-  nombre.value = u.nombre;
-  apellidos.value = u.apellidos;
-  edad.value = u.edad;
-  genero.value = u.genero;
-  estado_civil.value = u.estado_civil;
-  telefono.value = u.telefono;
-  email.value = u.email;
-  fecha_inicial.value = u.fecha_inicial;
-  fecha_final.value = u.fecha_final;
-
-  idActual = u.id;
-  editando.value = true;
-};
-
-// FILTROS
+// FILTRO + PAGINACIÓN
 const listaFiltrada = computed(() =>
   lista.value.filter((u) => {
     const text =
       `${u.nombre} ${u.apellidos} ${u.email} ${u.telefono}`.toLowerCase();
-    const coincideTexto = text.includes(filtroTexto.value.toLowerCase());
-    const coincideGenero =
-      !filtroGenero.value || u.genero === filtroGenero.value;
-    const coincideEstado =
-      !filtroEstado.value || u.estado_civil === filtroEstado.value;
-
-    const fechaRegistro = new Date(u.fecha_inicial);
-    const inicio = fechaInicio.value ? new Date(fechaInicio.value) : null;
-    const fin = fechaFin.value ? new Date(fechaFin.value) : null;
-
-    const coincideFecha =
-      (!inicio || fechaRegistro >= inicio) && (!fin || fechaRegistro <= fin);
-
-    return coincideTexto && coincideGenero && coincideEstado && coincideFecha;
+    return (
+      text.includes(filtroTexto.value.toLowerCase()) &&
+      (!filtroGenero.value || u.genero === filtroGenero.value) &&
+      (!filtroEstado.value || u.estado_civil === filtroEstado.value)
+    );
   }),
 );
 
-// PAGINACIÓN COMPUTED
 const totalPaginas = computed(() =>
   Math.ceil(listaFiltrada.value.length / porPagina.value),
 );
 
 const usuariosPaginados = computed(() => {
-  const inicio = (paginaActual.value - 1) * porPagina.value;
-  return listaFiltrada.value.slice(inicio, inicio + porPagina.value);
+  const start = (paginaActual.value - 1) * porPagina.value;
+  return listaFiltrada.value.slice(start, start + porPagina.value);
 });
 
 // TOAST
@@ -460,251 +393,283 @@ const toastMessage = ref("");
 function showToast(msg) {
   toastMessage.value = msg;
   toastVisible.value = true;
-  const toastEl = document.getElementById("toast");
-  toastEl.classList.add("show");
-
-  setTimeout(() => {
-    toastEl.classList.remove("show");
-    toastVisible.value = false;
-  }, 2500);
+  setTimeout(() => (toastVisible.value = false), 2500);
 }
 
 onMounted(() => cargar());
 </script>
 
 <style scoped>
-/* 🔥 TEXTO BLANCO GLOBAL PARA ESTA VISTA */
 * {
   color: white !important;
 }
-
-/* ESTILOS GENERALES */
 .container {
   max-width: 900px;
-  margin: 40px auto;
-  padding: 0 20px;
-  text-align: center;
+  margin: auto;
+  padding: 20px;
 }
 
-/* BOTÓN TOGGLE NUEVO USUARIO */
 .btn-toggle {
   background: #2563eb;
-  color: white;
-  padding: 8px 14px;
+  padding: 10px 18px;
   border-radius: 12px;
-  font-size: 14px;
-  border: none;
   cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 15px;
-  transition: 0.2s;
+  z-index: 9999;
 }
 
-.btn-toggle:hover {
-  background: #1d4ed8;
-  transform: scale(1.05);
-}
-
-/* BOTÓN AGREGAR/ACTUALIZAR COMO EL DE CANCELAR */
-.btn-primary {
-  background: #2563eb !important;
-  color: white !important;
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
-  margin-top: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: #1d4ed8 !important;
-  transform: scale(1.05);
-}
-
-/* TRANSICIÓN FORMULARIO */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.2s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-
-/* CARD */
-.card {
+.modal {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 30px;
-  border-radius: 18px;
-  margin-bottom: 35px;
-  backdrop-filter: blur(14px);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
 }
 
-/* GRID FORM */
+.btn-primary {
+  background: #2563eb;
+  padding: 10px 16px;
+  margin-top: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #ef4444;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.input-error {
+  border: 2px solid #ff4d4d !important;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.msg-error {
+  color: #ff4d4d !important;
+  font-size: 12px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 15px;
 }
 
-/* INPUTS Y SELECTS */
-input,
-select {
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: white !important;
-}
-
-input::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* LISTAS DESPLEGABLES AZULES */
-select {
-  background-color: rgba(30, 58, 138, 0.8) !important;
-  color: white !important;
-}
-
-select option {
-  background-color: #1e40af !important;
-  color: white !important;
-}
-
-/* ERRORES */
-.input-error {
-  border: 2px solid #ff4d4d !important;
-  background-color: rgba(255, 0, 0, 0.1);
-}
-
-.msg-error {
-  color: #ff4d4d !important;
-  margin-top: -10px;
-  margin-bottom: 8px;
-}
-
-/* FILTROS */
-.filtros input,
-.filtros select {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-.filtros input::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* LISTA */
-.list {
-  list-style: none;
-  padding: 0;
-  margin-top: 25px;
-}
-
 .list-item {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  margin-bottom: 10px;
   border-radius: 12px;
-  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
 }
 
-.user-info {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  max-width: 70%;
-}
-
-/* BOTONES CRUD */
 .btn-edit {
   background: #22c55e;
   padding: 8px 12px;
   border-radius: 8px;
-  border: none;
-  cursor: pointer;
 }
-.btn-edit:hover {
-  background: #15803d;
-}
-
 .btn-delete {
   background: #ef4444;
   padding: 8px 12px;
   border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-.btn-delete:hover {
-  background: #b91c1c;
 }
 
-/* PAGINACIÓN MINIMALISTA */
 .pagination {
-  margin-top: 25px;
+  margin-top: 20px;
   display: flex;
-  justify-content: center;
   gap: 10px;
+  justify-content: center;
 }
 
-.pagination button {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 6px;
-}
-
-.page {
-  padding: 6px 10px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-}
-
-.page.active {
-  background: #3b82f6;
-  font-weight: bold;
-}
-
-.page:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-/* TOAST — AHORA SE VE ENCIMA DEL NAV */
 .toast {
   position: fixed;
-  top: 95px !important;
+  top: 90px;
   right: 25px;
   background: #16a34a;
   padding: 14px 22px;
   border-radius: 10px;
-  z-index: 9999 !important;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.4s ease;
+  opacity: 0.9;
+}
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
 }
 
-.toast.show {
-  opacity: 1 !important;
-  transform: translateY(0);
+/* CONTENEDOR DEL MODAL */
+.modal {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  padding: 30px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 600px;
+  animation: fadeInModal 0.25s ease;
+}
+
+/* ANIMACIÓN */
+@keyframes fadeInModal {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* BOTÓN CANCELAR */
+.btn-cancel {
+  background: #ef4444 !important;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: #b91c1c !important;
+  transform: scale(1.05);
+}
+
+/* 🔵 FONDO AZUL EN LOS INPUTS Y SELECT */
+.modal input,
+.modal select {
+  background: rgba(37, 99, 235, 0.3) !important; /* azul suave */
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 10px;
+  border-radius: 10px;
+  color: white !important;
+}
+
+/* Cuando hagan focus */
+.modal input:focus,
+.modal select:focus {
+  outline: none;
+  border: 2px solid #60a5fa;
+  background: rgba(37, 99, 235, 0.45) !important;
+}
+
+/* ❗ Mantener los inputs con error */
+.input-error {
+  background: rgba(255, 0, 0, 0.15) !important;
+  border-color: #ff4d4d !important;
+}
+
+/* 📌 SEPARACIÓN ENTRE LOS DATOS DE LA LISTA */
+.user-info span {
+  display: block;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Último sin línea */
+.user-info span:last-child {
+  border-bottom: none;
+}
+/* 🔵 FILTROS CON FONDO AZUL */
+.filtros input,
+.filtros select {
+  background: rgba(37, 99, 235, 0.3) !important; /* azul suave */
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: white !important;
+  backdrop-filter: blur(5px);
+  transition: 0.2s ease;
+}
+
+/* Mejor placeholder */
+.filtros input::placeholder {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Hover suave */
+.filtros input:hover,
+.filtros select:hover {
+  background: rgba(37, 99, 235, 0.45) !important;
+}
+
+/* Focus */
+.filtros input:focus,
+.filtros select:focus {
+  background: rgba(37, 99, 235, 0.55) !important;
+  border: 2px solid #60a5fa;
+  outline: none;
+  transform: scale(1.03);
+}
+
+/* Opciones del select */
+.filtros select option {
+  background: #1e40af !important;
+  color: white !important;
+}
+/* 📌 TABLA DE USUARIOS */
+.tabla-usuarios {
+  width: 100%;
+  margin-top: 25px;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Encabezados */
+.tabla-usuarios th {
+  background: rgba(37, 99, 235, 0.35);
+  padding: 12px;
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Celdas */
+.tabla-usuarios td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Hover de fila */
+.tabla-usuarios tbody tr:hover {
+  background: rgba(37, 99, 235, 0.28);
+  transition: 0.2s ease;
+}
+
+/* Acciones alineadas */
+.acciones {
+  white-space: nowrap;
+  display: flex;
+  gap: 8px;
 }
 </style>
